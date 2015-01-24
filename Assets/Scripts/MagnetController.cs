@@ -18,7 +18,7 @@ public class MagnetController : MonoBehaviour {
 	void Start () {
         LineRenderer lineRenderer = gameObject.AddComponent<LineRenderer>();
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        lineRenderer.SetColors(Color.yellow, Color.red);
+        lineRenderer.SetColors(Color.red, Color.red);
         lineRenderer.SetWidth(0.1f, 0.1f);
 	}
 	
