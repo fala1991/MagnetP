@@ -6,9 +6,9 @@ public class MagnetController : MonoBehaviour {
 
     public float quantityOfCharge = 1.0f;
 
-    public float factor = 5.0f;
+    public float factor = 10.0f;
 
-    private GameObject nearestMagnet = null;
+//    private GameObject nearestMagnet = null;
 
     private GameObject strongestMagnet = null;
 
@@ -42,7 +42,7 @@ public class MagnetController : MonoBehaviour {
     public void OnQuantityChanged() {
         if (UIProgressBar.current != null)
         {
-            quantityOfCharge = Mathf.RoundToInt(UIProgressBar.current.value * 2) - 1.0f;
+            quantityOfCharge = UIProgressBar.current.value * 2.0f - 1.0f;
         }
     }
 
