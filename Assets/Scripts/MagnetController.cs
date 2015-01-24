@@ -10,6 +10,10 @@ public class MagnetController : MonoBehaviour {
 
     private GameObject nearestMagnet = null;
 
+    private GameObject strongestMagnet = null;
+
+    private Vector2 strongestForce = Vector2.zero;
+
 	// Use this for initialization
 	void Start () {
         LineRenderer lineRenderer = gameObject.AddComponent<LineRenderer>();
@@ -26,8 +30,13 @@ public class MagnetController : MonoBehaviour {
 
     void FixedUpdate()
     {
-        DrawLineToNearestMagnet();
-        AddInstanceForce();
+        strongestMagnet = GetStrongestMagnet();
+        if (strongestMagnet == null) {
+            strongestForce = Vector2.zero;
+            return;
+        }
+        DrawLineToStrongestMagnet();
+        rigidbody2D.AddForce(strongestForce);
     }
 
     public void OnQuantityChanged() {
@@ -37,7 +46,53 @@ public class MagnetController : MonoBehaviour {
         }
     }
 
-    GameObject GetNearestMagnet()
+
+    GameObject GetStrongestMagnet() {
+        GameObject[] magnets = GameObject.FindGameObjectsWithTag("Magnet");
+        GameObject strongest = null;
+        float max = float.MinValue;
+        for (int i = 0; i < magnets.Length; i++) {
+            Vector2 force = ComputeMagentForce(magnets[i].transform.position, magnets[i].GetComponent<MagnetController>().quantityOfCharge);
+            if(!Mathf.Approximately(0.0f,force.magnitude) && force.magnitude > max){
+                strongest = magnets[i];
+                max = force.magnitude;
+                strongestForce = force;
+            }
+        }
+        return strongest;
+    }
+
+    
+    void DrawLineToStrongestMagnet()
+    {
+        if (strongestMagnet == null) return;
+        LineRenderer lineRenderer = GetComponent<LineRenderer>();
+        lineRenderer.SetPosition(0, transform.position);
+        lineRenderer.SetPosition(1, strongestMagnet.transform.position);
+    }
+
+    Vector2 ComputeMagentForce(Vector3 targetPositon, float targetQuantity) {
+
+        Vector3 direction = transform.position - targetPositon;
+        float distance = direction.magnitude;
+        float force = targetQuantity * quantityOfCharge * factor / (distance * distance);
+        direction.Normalize();
+        direction *= force;
+        return new Vector2(direction.x, direction.y);
+    }
+    /*
+     * 
+     * 
+    void DrawLineToNearestMagnet()
+    {
+        if (nearestMagnet == null) return;
+        LineRenderer lineRenderer = GetComponent<LineRenderer>();
+        lineRenderer.SetPosition(0, transform.position);
+        lineRenderer.SetPosition(1, nearestMagnet.transform.position);
+    }
+     * 
+     * 
+     GameObject GetNearestMagnet()
     {
         GameObject[] magnets = GameObject.FindGameObjectsWithTag("Magnet");
         GameObject nearest = null;
@@ -53,17 +108,11 @@ public class MagnetController : MonoBehaviour {
         }
         return nearest;
     }
-
-    void DrawLineToNearestMagnet()
-    {
-        LineRenderer lineRenderer = GetComponent<LineRenderer>();
-        nearestMagnet = GetNearestMagnet();
-        lineRenderer.SetPosition(0, transform.position);
-        lineRenderer.SetPosition(1, nearestMagnet.transform.position);
-    }
-
+     * 
+     * 
     void AddInstanceForce()
     {
+        if (nearestMagnet == null) return;
         Vector3 direction = nearestMagnet.transform.position - transform.position;
         if (direction.magnitude < 1f) return;
         float distance = Vector3.Distance(nearestMagnet.transform.position, transform.position);
@@ -71,5 +120,5 @@ public class MagnetController : MonoBehaviour {
         direction.Normalize();
         Vector2 direction2d = new Vector2(direction.x,direction.y);
         rigidbody2D.AddForce(direction2d * force * factor);
-    }
+    }*/
 }
